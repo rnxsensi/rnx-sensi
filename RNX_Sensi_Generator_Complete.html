@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RNX Sensi Generator</title>
+<style>
+:root{--bg:#08080a;--card:#141419;--line:#2b2b33;--text:#fff;--muted:#a7a7b0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+main{max-width:760px;margin:auto;padding:20px 14px 50px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px}
+.logo{text-align:center;font-weight:900;font-size:34px;letter-spacing:2px}.sub{text-align:center;color:var(--muted);margin:6px 0 24px}
+h2{font-size:18px;margin:20px 0 12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+input,select{width:100%;background:#0b0b0e;color:#fff;border:1px solid var(--line);border-radius:11px;padding:12px;font-size:15px;outline:none}
+.full{grid-column:1/-1}button{width:100%;border:0;border-radius:12px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;margin-top:18px;background:#fff;color:#000}
+.result{display:none;margin-top:22px;border-top:1px solid var(--line);padding-top:18px}.sensi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.box{background:#0b0b0e;border:1px solid var(--line);border-radius:12px;padding:13px}.box small{color:var(--muted)}.num{font-size:28px;font-weight:900;margin-top:4px}
+.tags{line-height:2.5}.tag{border:1px solid var(--line);border-radius:20px;padding:7px 10px;color:#ccc;font-size:12px;margin-right:5px;white-space:nowrap}
+.copy{background:#222;color:#fff;margin-top:12px}.note{font-size:12px;color:var(--muted);line-height:1.55;margin-top:14px}
+@media(max-width:540px){.grid,.sensi{grid-template-columns:1fr}.full{grid-column:auto}}
+</style>
+</head>
+<body>
+<main><div class="card">
+<div class="logo">RNX</div>
+<div class="sub">ADVANCED FREE FIRE SENSI GENERATOR</div>
+
+<h2>📱 Device</h2>
+<div class="grid">
+<div class="field full"><label>Phone Model</label><input id="device" placeholder="Example: Vivo T4 5G"></div>
+<div class="field"><label>RAM</label><input id="ram" placeholder="Example: 8+8 GB"></div>
+<div class="field"><label>Refresh Rate</label><input id="hz" placeholder="Example: 120 Hz"></div>
+</div>
+
+<h2>🎯 Current Setup</h2>
+<div class="grid">
+<div class="field"><label>General (0–200)</label><input id="g" type="number" min="0" max="200" value="192"></div>
+<div class="field"><label>Red Dot (0–200)</label><input id="rd" type="number" min="0" max="200" value="165"></div>
+<div class="field"><label>2X Scope</label><input id="x2" type="number" min="0" max="200" value="165"></div>
+<div class="field"><label>4X Scope</label><input id="x4" type="number" min="0" max="200" value="155"></div>
+<div class="field"><label>Sniper</label><input id="sn" type="number" min="0" max="200" value="100"></div>
+<div class="field"><label>Free Look</label><input id="fl" type="number" min="0" max="200" value="180"></div>
+<div class="field"><label>Fire Button Size</label><input id="fb" type="number" min="1" max="100" value="36"></div>
+<div class="field"><label>Priority</label>
+<select id="priority"><option value="balanced">Headshot + Movement</option><option value="movement">Maximum Movement + Rotation</option><option value="headshot">Maximum Drag Headshot</option><option value="long">Long Range Stability</option></select></div>
+<div class="field full"><label>Test Result (optional)</label><input id="test" placeholder="Example: body shots, rotation slow, overdrag"></div>
+</div>
+
+<button onclick="generate()">🔥 GENERATE RNX SENSI</button>
+
+<section class="result" id="result">
+<h2>🔥 RNX FINAL SENSITIVITY</h2>
+<div class="sensi">
+<div class="box"><small>GENERAL</small><div class="num" id="og"></div></div>
+<div class="box"><small>RED DOT</small><div class="num" id="ord"></div></div>
+<div class="box"><small>2X SCOPE</small><div class="num" id="ox2"></div></div>
+<div class="box"><small>4X SCOPE</small><div class="num" id="ox4"></div></div>
+<div class="box"><small>SNIPER</small><div class="num" id="osn"></div></div>
+<div class="box"><small>FREE LOOK</small><div class="num" id="ofl"></div></div>
+<div class="box"><small>FIRE BUTTON</small><div class="num" id="ofb"></div></div>
+</div>
+<h2>⚡ Recommended Drag Styles</h2>
+<div class="tags">
+<span class="tag">State Drag</span><span class="tag">Rotation Drag</span><span class="tag">Short Drag</span>
+<span class="tag">Long Drag</span><span class="tag">Running Drag</span><span class="tag">Shotgun Flick</span>
+</div>
+<button class="copy" onclick="copyResult()">📋 COPY RESULT</button>
+<p class="note">RNX tuning targets strong headshot consistency, movement, rotation and drag control. No sensitivity can guarantee a fixed headshot percentage because touch response, FPS, ping and player technique also matter.</p>
+</section>
+</div></main>
+
+<script>
+const C=(n,a=0,b=200)=>Math.max(a,Math.min(b,Math.round(n)));
+function generate(){
+ let g=+document.getElementById('g').value,rd=+document.getElementById('rd').value,
+ x2=+document.getElementById('x2').value,x4=+document.getElementById('x4').value,
+ sn=+document.getElementById('sn').value,fl=+document.getElementById('fl').value,
+ fb=+document.getElementById('fb').value,p=document.getElementById('priority').value,
+ t=document.getElementById('test').value.toLowerCase();
+ let a=p==='movement'?7:p==='headshot'?4:p==='long'?-2:5;
+ if(t.includes('body')){rd+=4;x2+=3}
+ if(t.includes('over')||t.includes('above')){rd-=4;x2-=3}
+ if(t.includes('rotation')&&t.includes('slow'))g+=3;
+ if(t.includes('long')&&t.includes('unstable')){x4-=4;sn-=3}
+ let vals=[C(g+a),C(rd+a),C(x2+a-1),C(x4+a-2),C(sn+a-2),C(fl+a),C(fb+(p==='movement'?2:0),1,100)];
+ ['og','ord','ox2','ox4','osn','ofl','ofb'].forEach((id,i)=>document.getElementById(id).textContent=vals[i]);
+ document.getElementById('result').style.display='block';
+}
+function copyResult(){
+ const ids=['og','ord','ox2','ox4','osn','ofl','ofb'];
+ const names=['General','Red Dot','2X Scope','4X Scope','Sniper','Free Look','Fire Button'];
+ let s='🔥 RNX FINAL SENSITIVITY\\n';ids.forEach((id,i)=>s+=names[i]+': '+document.getElementById(id).textContent+'\\n');
+ navigator.clipboard?.writeText(s);
+}
+</script>
+</body>
+</html>
